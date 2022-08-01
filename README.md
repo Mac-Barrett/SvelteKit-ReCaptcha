@@ -3,17 +3,24 @@ NOTE: This has only really been tested inside of SvelteKit
 
 ## Initial setup:
     1 - install the grecaptcha npm package: (you're probably going to have to reload VS Code for the squigglys to go away)
+
+
     ```bash
         npm i --save-dev @types/grecaptcha
     ```
 
+
     2 - Insert this Component into your HTML Form
+
 
     ```svelte
     <SvelteRecaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
     ```
+
+
     3 - Create a file in src/types named index.d.ts and paste the following block:
         (From my understanding the recaptcha component from google attaches its events to the window, so this is how we can grab these hooks)
+
 
     ```ts
     export {};
@@ -27,6 +34,8 @@ NOTE: This has only really been tested inside of SvelteKit
         }
     }
     ```
+
+    
     4 - Go to google's ReCaptcha Page and secure a SITE_KEY & SECRET_KEY for your site & set them up as environment variables.
     5 - Bind the SITE_KEY for the ReCaptcha component to your environment variable in your script
 
