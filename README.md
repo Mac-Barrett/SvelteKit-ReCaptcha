@@ -2,7 +2,7 @@
 NOTE: This has only really been tested inside of SvelteKit
 
 ## Initial setup:
-    1 - install the grecaptcha npm package: (you're probably going to have to reload VS Code for the squigglys to go away)
+Install the grecaptcha npm package: (you're probably going to have to reload VS Code for the squigglys to go away)
 
 
     ```bash
@@ -10,7 +10,7 @@ NOTE: This has only really been tested inside of SvelteKit
     ```
 
 
-    2 - Insert this Component into your HTML Form
+Insert this Component into your HTML Form
 
 
     ```svelte
@@ -18,7 +18,7 @@ NOTE: This has only really been tested inside of SvelteKit
     ```
 
 
-    3 - Create a file in src/types named index.d.ts and paste the following block:
+Create a file in src/types named index.d.ts and paste the following block:
         (From my understanding the recaptcha component from google attaches its events to the window, so this is how we can grab these hooks)
 
 
@@ -35,9 +35,9 @@ NOTE: This has only really been tested inside of SvelteKit
     }
     ```
 
-    
-    4 - Go to google's ReCaptcha Page and secure a SITE_KEY & SECRET_KEY for your site & set them up as environment variables.
-    5 - Bind the SITE_KEY for the ReCaptcha component to your environment variable in your script
+
+Go to google's ReCaptcha Page and secure a SITE_KEY & SECRET_KEY for your site & set them up as environment variables.
+Finally, bind the SITE_KEY for the ReCaptcha component to your environment variable in your script
 
 ## Verifying Captcha Responses Client-Side:
     1 - SITE_KEY is for use in the client-side broser: this component uses the SITE_KEY to secure a token from googles catpcha API
