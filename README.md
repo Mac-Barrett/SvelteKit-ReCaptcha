@@ -1,12 +1,14 @@
 ## About 
 NOTE: This has only really been tested inside of SvelteKit
+NOTE: This uses reCaptcha v2, which is the checkbox
 
 ## Initial setup:
+0. The easiest way to setup this for your project is to simply copy & paste the Code for the Captcha component from this project, so do that first...
 1. Install the grecaptcha npm package: (you're probably going to have to reload VS Code for the squigglys to go away)
 
 
 ```bash
-    npm i --save-dev @types/grecaptcha
+npm i --save-dev @types/grecaptcha
 ```
 
 
@@ -18,8 +20,7 @@ NOTE: This has only really been tested inside of SvelteKit
 ```
 
 
-3. Create a file in src/types named index.d.ts and paste the following block:
-        (From my understanding the recaptcha component from google attaches its events to the window, so this is how we can grab these hooks)
+3. Create a file in src/types named index.d.ts and paste the following block: (From my understanding the recaptcha component from google attaches it's events to the window, so this is how we can grab these hooks)
 
 
 ```ts
@@ -53,7 +54,8 @@ const captchaTokenRecieved = (event: { detail: { token: any; }; }) => {
 
 ## Verifying Captcha Responses Server-Side
 1. Make sure that you've saved the token from the on:captchaTokenRecieved dispatch
-2. In your server endpoint, make an API call to google's recaptcha service to verify that the token the server recieved from the client is the same one that google sent to the client's browser. Your endpoint ought to end up looking something like this:
+2. Remember to bind the SECRET_KEY env variable you set up earlier to something on your endpoint so you can use it here.
+3. In your server endpoint, make an API call to google's recaptcha service to verify that the token the server recieved from the client is the same one that google sent to the client's browser. Your endpoint ought to end up looking something like this:
 
 ```ts
 const SECRET_KEY = [--SECRET KEY env variable--]
@@ -75,13 +77,13 @@ export const POST: RequestHandler = async ({ request }) => {
 }
 
 /**
- * Calls the captcha API endpoint, returns true if captcha is succesful
-    * 
-    * @param token ReCaptcha Token from the client
-    * @param host URL of the site making the request
-    * @returns Promise containing captcha's success status
-    */
-    async function verifyCaptcha(token: string, host: string): Promise<boolean> {
+* Calls the captcha API endpoint, returns true if captcha is succesful
+* 
+* @param token ReCaptcha Token from the client
+* @param host URL of the site making the request
+* @returns Promise containing captcha's success status
+*/
+async function verifyCaptcha(token: string, host: string): Promise<boolean> {
     const res = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${token}&remoteip=${host}`, { method: 'POST' });
 
     const data: { success: boolean; } = await res.json();
@@ -89,7 +91,8 @@ export const POST: RequestHandler = async ({ request }) => {
 }
 ```
 
-If you've done everything correctly, this should be working perfectly. The hooks inside of this component can be edited if you so choose to provide further functionality to the component; however, that is up to you to decide how it is implemented. There is further function documentation inside this component, and if you have any other issues the docs are actually somewhat informative: https://developers.google.com/recaptcha/docs/display
+
+If you've done everything correctly, the reCaptcha widget should now be working. The hooks inside of this component can be edited if you so choose to provide further functionality to the component; however, that is up to you to decide how it is implemented. There is further function documentation inside this component, and if you have any other issues the docs are actually somewhat informative: https://developers.google.com/recaptcha/docs/display
 
 
 ## Creating a project
