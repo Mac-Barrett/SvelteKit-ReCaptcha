@@ -12,6 +12,10 @@
         formData.token = event.detail.token;
     }
 
+    const captchaReset = () => {
+        name = 'world';
+    }
+
     const onSubmit = async () => {
         if (formData.token === "")
             return;
@@ -22,6 +26,9 @@
             headers: { 'Content-Type': 'application/json' }
         });
         console.log(response);
+        if (response.ok) {
+            name = formData.name;
+        }
     }
 </script>
 
@@ -29,6 +36,11 @@
 
 <form on:submit|preventDefault={onSubmit}>
     <input type="text" bind:value={formData.name}>
-    <ReCaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
+    <ReCaptcha 
+        SITE_KEY={SITE_KEY}
+        CaptchaStyle={{theme: 'light', size: 'normal'}}
+        on:captchaTokenRecieved={captchaTokenRecieved}
+        on:captchaReset={captchaReset}
+        />
     <button>Submit</button>
 </form>
