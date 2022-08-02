@@ -1,60 +1,49 @@
-## About 
-NOTE: This has only really been tested inside of SvelteKit
-NOTE: This uses reCaptcha v2, which is the checkbox
+## Notes: 
+- This has only really been tested inside of SvelteKit
+- This component uses reCaptcha v2, which is the checkbox widget
+- Please follow the tutorial steps for client & server validation below, it will explain how to use this component in pretty good detail.
 
 ## Initial setup:
-0. The easiest way to setup this for your project is to simply copy & paste the Code for the Captcha component from this project, so do that first...
-1. Install the grecaptcha npm package: (you're probably going to have to reload VS Code for the squigglys to go away)
-
-
+1. Install the npm package:
 ```bash
-npm i --save-dev @types/grecaptcha
+npm i @mac-barrett/svelte-recaptcha
 ```
 
-
-2. Insert this Component into your HTML Form
-
+2. Go to Google's captcha service and grab a SITE_KEY & a SECRET_KEY for use in the ReCaptcha widget. You can do so here: http://www.google.com/recaptcha/admin
+3. Set these keys up as .env variables so you're not hosting them anywhere malicous users can see them. The site key is for your browser pages while the secret key is for your server or endpoint to validate the captcha token.
+4. Import the ReCaptcha component & insert it into your HTML body:
 
 ```svelte
+<script>
+    import { ReCaptcha } from '@mac-barrett/svelte-recaptcha';
+
+    let SITE_KEY = // your environment variable goes here
+</script>
+
 <SvelteRecaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
 ```
 
-
-3. Create a file in src/types named index.d.ts and paste the following block: (From my understanding the recaptcha component from google attaches it's events to the window, so this is how we can grab these hooks)
-
-
-```ts
-export {};
-
-declare global {
-    interface Window {
-        onDataRecievedHook: (token: string) => Promise<void>;
-        onDataExpiredHook: () => void;
-        onCaptchaError: () => void;
-        resetCaptcha: () => void;
-    }
-}
-```
-
-
-4. Go to google's ReCaptcha Page and secure a SITE_KEY & SECRET_KEY for your site & set them up as environment variables.
-5. Finally, bind the SITE_KEY for the ReCaptcha component to your environment variable in your script
-
 ## Verifying Captcha Responses Client-Side:
-1. SITE_KEY is for use in the client-side broser: this component uses the SITE_KEY to secure a token from googles catpcha API
-2. From the parent component you may now use the on:captchaTokenRecieved dispatch to do stuff once the token is recieved (e.g. save that token and/or submit)
+1. Once the Captcha test is successfully completed, the component will dispatch the captchaTokenRecieved method which the parent can use to save the token as follows:
 
-```ts
-const captchaTokenRecieved = (event: { detail: { token: any; }; }) => {
-    formData.token = event.detail.token;
-}
+```svelte
+<script>
+    import { ReCaptcha } from '@mac-barrett/svelte-recaptcha';
+
+    let SITE_KEY = [your environment variable goes here]
+
+    let captchaToken: string|null = null;
+    const captchaTokenRecieved = (event: { detail: { token: any; }; }) => {
+        captchaToken = event.detail.token;
+    }
+</script>
 ```
 
-3. You may also choose to reset the token in the case of data expiration: in this case dispatch an event from the resetCaptcha callback & reset the parent component's captcha token.
+3. You may also choose to reset the token in the case of data expiration or other Captcha errors. In these cases you can use the on:captchaReset dispatch to do so.
 
 ## Verifying Captcha Responses Server-Side
-1. Make sure that you've saved the token from the on:captchaTokenRecieved dispatch
-2. Remember to bind the SECRET_KEY env variable you set up earlier to something on your endpoint so you can use it here.
+1. As shown, make sure to save the captcha token from the captchaTokenRecieved event.
+2. Send the captcha token with the body of your HTTP request for the final validation test.
 3. In your server endpoint, make an API call to google's recaptcha service to verify that the token the server recieved from the client is the same one that google sent to the client's browser. Your endpoint ought to end up looking something like this:
 
 ```ts
@@ -69,7 +58,9 @@ export const POST: RequestHandler = async ({ request }) => {
             body: 'ReCaptcha Failed to authorize on server, please try again'
         }
     }
-    // [Captcha is verified, now you may handle the request as normal]
+    // Captcha is verified, now you may handle the request as you normally would
+
+
     return {
         status: 200,
         body: 'Captcha Verified, success or what have you'
@@ -91,41 +82,26 @@ async function verifyCaptcha(token: string, host: string): Promise<boolean> {
 }
 ```
 
+## All Props & Events
+Props:
+```ts
+// Pass your environment variable SITE_KEY into the component here
+export var SITE_KEY: string;
 
-If you've done everything correctly, the reCaptcha widget should now be working. The hooks inside of this component can be edited if you so choose to provide further functionality to the component; however, that is up to you to decide how it is implemented. There is further function documentation inside this component, and if you have any other issues the docs are actually somewhat informative: https://developers.google.com/recaptcha/docs/display
-
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+// Optional CaptchaStyle props
+export var CaptchaStyle = {
+    theme: "light" or "dark",
+    size: "normal" or "compact"
+}
 ```
+Events:
+```ts
+on:captchaTokenRecieved 
+// event.detail.token contains the captcha token recieved from Google's captcha service
+// make sure to save this token and send it with the HTTP request
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+on:captchaReset 
+// use this event to reset your controls or your token if you don't want people to be able to advance without completing the captcha.
+// it doesn't really need to be done however, as if you make a request with a bad token your server shouldn't proceed.
 ```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+That's all there is to know! If there are issues please let me know.

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import SvelteRecaptcha from "./ReCaptcha.svelte";
+    import { ReCaptcha } from "$lib";
     let name = 'world';
 
     let SITE_KEY: string = "";
@@ -29,6 +29,6 @@
 
 <form on:submit|preventDefault={onSubmit}>
     <input type="text" bind:value={formData.name}>
-    <SvelteRecaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
+    <ReCaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
     <button>Submit</button>
 </form>
