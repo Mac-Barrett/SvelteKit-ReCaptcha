@@ -1,6 +1,8 @@
-## Notes: 
+## Svelte Kit ReCaptcha Component: 
+- This component uses Google's v2 Captcha widget, which sends the user an 'I am not a robot' challenge.
+
+## Things to note 
 - This has only really been tested inside of SvelteKit
-- This component uses reCaptcha v2, which is the checkbox widget
 - Please follow the tutorial steps for client & server validation below, it will explain how to use this component in pretty good detail.
 
 ## Initial setup:
@@ -10,6 +12,7 @@ npm i @mac-barrett/svelte-recaptcha
 ```
 
 2. Go to Google's captcha service and grab a SITE_KEY & a SECRET_KEY for use in the ReCaptcha widget. You can do so here: http://www.google.com/recaptcha/admin
+    - Note that these keys are associated with your domain name, so if you want to use this on multiple sites you must acquire more keys.
 3. Set these keys up as .env variables so you're not hosting them anywhere malicous users can see them. The site key is for your browser pages while the secret key is for your server or endpoint to validate the captcha token.
 4. Import the ReCaptcha component & insert it into your HTML body:
 
@@ -20,7 +23,7 @@ npm i @mac-barrett/svelte-recaptcha
     let SITE_KEY = // your environment variable goes here
 </script>
 
-<SvelteRecaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
+<SvelteRecaptcha {SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
 ```
 
 ## Verifying Captcha Responses Client-Side:
@@ -51,7 +54,10 @@ const SECRET_KEY = [--SECRET KEY env variable--]
 
 export const POST: RequestHandler = async ({ request }) => {
     const { formData } = await request.json();
-    const CaptchaResponse = await verifyCaptcha([--client's captcha validation token--], [--your domain name--]); // Domain name for local host is localhost:[--port--]
+
+    // First arg is token from the captcha, second arg is your site's URL
+    // Yes you may use localhost
+    const CaptchaResponse = await verifyCaptcha(formData.token, 'localhost:8080');
     if (!CaptchaResponse) {
         return {
             status: 400,
@@ -96,12 +102,13 @@ export var CaptchaStyle = {
 ```
 Events:
 ```ts
-on:captchaTokenRecieved 
-// event.detail.token contains the captcha token recieved from Google's captcha service
-// make sure to save this token and send it with the HTTP request
+dispatch('captchaTokenRecieved', { token });
+// Catch this from your ReCaptcha component with the on:captchaTokenRecieved property
+// event.detail.token contains the token
 
-on:captchaReset 
-// use this event to reset your controls or your token if you don't want people to be able to advance without completing the captcha.
-// it doesn't really need to be done however, as if you make a request with a bad token your server shouldn't proceed.
+dispatch('captchaReset');
+// Catch this from your ReCaptcha component with the on:captchaReset property
+// Ideally use this to reset your token or certain parts of your form or disable DOM elements.
+//  - Really it's up to you
 ```
 That's all there is to know! If there are issues please let me know.
