@@ -1,6 +1,16 @@
 {
-	"name": "my-app",
-	"version": "0.0.1",
+    "name": "@mac-barrett/svelte-recaptcha",
+    "version": "1.1.0",
+    "description": "A SvelteKit/Svelte Component that handles all of your ReCaptcha needs!",
+    "keywords": ["Svelte", "SvelteKit", "ReCaptcha", "ReCaptchaV2"],
+    "homepage": "https://github.com/Mac-Barrett/SvelteKit-ReCaptcha.git",
+    "bugs": {
+      "url": "https://github.com/Mac-Barrett/SvelteKit-ReCaptcha/issues"
+    },
+    "author": {
+      "name": "Mac Barrett",
+      "email": "maccabee.barrett3@gmail.com"
+    },
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",

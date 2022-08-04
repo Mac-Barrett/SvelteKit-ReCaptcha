@@ -6,8 +6,11 @@
     /** SITE_KEY From google */
     export var SITE_KEY: string;
 
-    /** Style Props: { theme: 'light' or 'dark', size: 'normal' or 'compact' } */
-    export var CaptchaStyle = {
+    interface CaptchaStyle {
+        theme: 'light'|'dark',
+        size: 'normal'|'compact'
+    }
+    export var CaptchaStyle: CaptchaStyle = {
         theme: 'light',
         size: 'normal'
     }
@@ -57,6 +60,33 @@
 <svelte:head>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </svelte:head>
+
+<!-- @component
+A ReCaptcha widget Svelte component.  
+Use the captchaTokenRecieved event to grab the token used for server side validation.
+#### Properties:
+```ts
+// The SITE_KEY associated with your domain
+export var SITE_KEY: string;
+
+// Used to style the widget
+export var CaptchaStyle: {
+    theme: 'light'|'dark', 
+    size: 'normal'|'compact'
+}
+```
+#### Events:
+```ts
+dispatch('captchaTokenRecieved', { token });
+```
+Catch this event in the parent component with `on:captchaTokenRecieved`.  
+event.detail.token contains the token recieved from the server upon successful completion of the Captcha.
+```ts 
+dispatch('captchaReset');
+```
+Catch this event in the parent component with `on:captchaReset`.
+Use this event to reset any necessaries values/elements or what have you if you'd like, but isn't necessary  
+-->
 
 {#if captchaError != ""}
 <p>{captchaError}</p>

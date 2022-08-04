@@ -36,11 +36,11 @@
 
 <form on:submit|preventDefault={onSubmit}>
     <input type="text" bind:value={formData.name}>
-    <ReCaptcha 
-        SITE_KEY={SITE_KEY}
-        CaptchaStyle={{theme: 'light', size: 'normal'}}
+    
+    <ReCaptcha SITE_KEY={SITE_KEY}
+        CaptchaStyle={{theme: 'dark', size: 'compact'}}
         on:captchaTokenRecieved={captchaTokenRecieved}
         on:captchaReset={captchaReset}
-        />
+    />
     <button>Submit</button>
 </form>
