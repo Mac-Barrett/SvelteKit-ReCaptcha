@@ -16,50 +16,32 @@ npm i @mac-barrett/svelte-recaptcha
 4. Import the ReCaptcha component & insert it into your HTML body:
 
 ```svelte
-<script>
+<script lang="ts">
     import { ReCaptcha } from '@mac-barrett/svelte-recaptcha';
 
     let SITE_KEY = // your environment variable goes here
+    let Captcha: ReCaptcha;
 </script>
 
-<ReCaptcha {SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
+<ReCaptcha bind:this={Captcha} { SITE_KEY } captchaStyle={{theme: 'dark', size: 'compact'}}/>
 ```
 # Verifying Captcha Responses Client-Side:
-1. Once the Captcha test is successfully completed, the component will dispatch the captchaTokenRecieved method which the parent can use to save the token as follows:
-
-```svelte
-<script>
-    import { ReCaptcha } from '@mac-barrett/svelte-recaptcha';
-
-    let SITE_KEY = [your environment variable goes here]
-
-    let captchaToken: string|null = null;
-    const captchaTokenRecieved = (event: { detail: { token: any; }; }) => {
-        captchaToken = event.detail.token;
-    }
-</script>
-
-<ReCaptcha SITE_KEY={SITE_KEY} on:captchaTokenRecieved={captchaTokenRecieved}/>
-```
-
-2. You may also choose to reset the token in the case of data expiration or other Captcha errors. In these cases you can use the `on:captchaReset` dispatch to do so.
-```svelte
-<ReCaptcha SITE_KEY={SITE_KEY}
-    CaptchaStyle={{theme: 'dark', size: 'compact'}}
-    on:captchaTokenRecieved={captchaTokenRecieved}
-    on:captchaReset={captchaReset}
-/>
-```
-3. Note the CaptchaStyle property, there aren't many ways to style Google's captcha widget but you are able to do so via this property.
-
-# Verifying Captcha Responses Server-Side
-1. As shown, make sure to save the captcha token from the captchaTokenRecieved event.
-2. Send the captcha token with the body of your HTTP request for the final validation test.
-3. In your server endpoint, make an API call to google's recaptcha service to verify that the token the server recieved from the client is the same one that google sent to the client's browser. Your endpoint ought to end up looking something like this:
-4. I think sending the host might be optional; however, you might as well send that as well.
+1. Bind the Captcha Element to a variable in your script tag & pass the SITE_KEY variable into the component as well as shown above.
+2. After completing the Captcha, you can get the token from the captcha widget by using the exported function `getRecaptchaResponse()`.
 
 ```ts
-const SECRET_KEY = [--SECRET KEY env variable--]
+formData.token = Captcha.getRecaptchaResponse();
+if (formData.token.length === 0) {
+    return;
+}
+```
+
+# Verifying Captcha Responses Server-Side
+1. Make sure to send the token from `Captcha.getRecaptchaResponse()` along with any other formData you're sending to your server.
+2. In your server endpoint, make an API call to google's recaptcha service to verify that the token the server recieved from the client is the same one that google sent to the client's browser. Your endpoint ought to end up looking something like this:
+
+```ts
+const SECRET_KEY = // your environment variable goes here
 
 export const POST: RequestHandler = async ({ request }) => {
     const { formData } = await request.json();
@@ -73,9 +55,10 @@ export const POST: RequestHandler = async ({ request }) => {
             body: 'ReCaptcha Failed to authorize on server, please try again'
         }
     }
-    // Captcha is verified, now you may handle the request as you normally would
-
-
+    /* Captcha is verified, now you may handle the request as you normally would
+        Do stuff
+        Do other stuff...
+    */
     return {
         status: 200,
         body: 'Captcha Verified, success or what have you'
@@ -98,12 +81,7 @@ async function verifyCaptcha(token: string, host: string): Promise<boolean> {
 ```
 # Component Properties & Events:
 ```svelte
-<ReCaptcha 
-    SITE_KEY
-    CaptchaStyle
-    on:captchaTokenRecieved
-    on:captchaReset
-/>
+<ReCaptcha SITE_KEY captchaStyle/>
 ```
 #### Properties:
 ```ts
@@ -111,22 +89,19 @@ async function verifyCaptcha(token: string, host: string): Promise<boolean> {
 export var SITE_KEY: string;
 
 // Used to style the widget
-export var CaptchaStyle: {
-    theme: 'light'|'dark', 
-    size: 'normal'|'compact'
+export var captchaStyle: {theme?: 'light'|'dark', size?:'normal'|'compact'} = {
+    theme: 'light',
+    size: 'normal'
 }
 ```
-#### Events:
+#### Functions:
+- Bind the component to a variable in your script tag to use exported methods.
 ```ts
-dispatch('captchaTokenRecieved', { token });
+/** Returns the captcha's token if it has one. If no response it returns an empty string */
+export function getRecaptchaResponse(): string {
+    return grecaptcha.getResponse();
+}
 ```
-Catch this event in the parent component with `on:captchaTokenRecieved`.  
-event.detail.token contains the token recieved from the server upon successful completion of the Captcha.
-```ts 
-dispatch('captchaReset');
-```
-Catch this event in the parent component with `on:captchaReset`.
-Use this event to reset any necessaries values/elements or what have you if you'd like, but isn't necessary
 
 ---
 

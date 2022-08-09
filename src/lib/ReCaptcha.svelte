@@ -1,54 +1,24 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { createEventDispatcher } from 'svelte';
-    const dispatch = createEventDispatcher();
 
     /** SITE_KEY From google */
     export var SITE_KEY: string;
-
-    interface CaptchaStyle {
-        theme?: 'light'|'dark',
-        size?: 'normal'|'compact'
-    }
-    export var captchaStyle: CaptchaStyle = {
+    /** Styles the captcha widget */
+    export var captchaStyle: {theme?: 'light'|'dark', size?:'normal'|'compact'} = {
         theme: 'light',
         size: 'normal'
     }
-    let captchaError: string = "";
-
-    /** Attaches the hooks to the window when the component mounts to the DOM */
-     onMount(() => {
-        window.onDataRecievedHook = onDataRecievedHook;
-        window.onDataExpiredHook = onDataExpiredHook;
-        window.onCaptchaError = onCaptchaError;
-        window.resetCaptcha = resetCaptcha;
-        grecaptcha.reset();
-    });
-
-    /**
-     * Fired when the captcha returns with a good response from the API. Dispatches the captchaTokenRecieved signal. 
-     * @param token Token from the reCaptcha API
-     */
-    const onDataRecievedHook = async (token: string) => {
-        dispatch('captchaTokenRecieved', { token });
-    };
-
-    /** Fires when the captcha's data expires and the user needs to be re-validated */
-    const onDataExpiredHook = () => {
-        resetCaptcha();
+    /** Returns the status of this captcha Component */
+    export function getRecaptchaResponse(): string {
+        return grecaptcha.getResponse();
     }
 
-    /** Fires when the captcha encounters an error--typically network connectivity. */
-    const onCaptchaError = () => {
-        captchaError = 'Recaptcha error. Please reload the page';
-        dispatch('captchaReset');
-	};
+    let captchaError: string = "";
 
-    /** Resets the captcha widget, you may choose to use the dispatch here to so that the parent can reset the captcha token. */
-    const resetCaptcha = () => {
-        window.grecaptcha.reset();
-        dispatch('captchaReset');
-    };
+    /** Mounts captcha I guess? */
+     onMount(() => {
+        grecaptcha.reset();
+    });
 </script>
 
 <svelte:head>
@@ -56,40 +26,36 @@
 </svelte:head>
 
 {#if captchaError != ""}
-<p>{captchaError}</p>
+<p>
+    Captcha error... {captchaError}
+</p>
 {:else}
 <div class="g-recaptcha" 
     data-sitekey={SITE_KEY} 
     data-theme={captchaStyle.theme}
-    data-size={captchaStyle.size}
-    data-callback="onDataRecievedHook"
-    data-expired-callback="onDataExpiredHook">
+    data-size={captchaStyle.size}>
 </div>
 {/if}
 
 <!-- @component
 A ReCaptcha widget Svelte component.  
-Use the captchaTokenRecieved event to grab the token used for server side validation.
+Bind this element to a variable and use it's getRecaptchaResponse method to grab the Captcha token.
 #### Properties:
 ```ts
 // The SITE_KEY associated with your domain
 export var SITE_KEY: string;
 
 // Used to style the widget
-export var captchaStyle: {
-    theme: 'light'|'dark', 
-    size: 'normal'|'compact'
+export var captchaStyle: {theme?: 'light'|'dark', size?:'normal'|'compact'} = {
+    theme: 'light',
+    size: 'normal'
 }
 ```
-#### Events:
+#### Functions:
 ```ts
-dispatch('captchaTokenRecieved', { token });
-```
-Catch this event in the parent component with `on:captchaTokenRecieved`.  
-event.detail.token contains the token recieved from the server upon successful completion of the Captcha.
-```ts 
-dispatch('captchaReset');
-```
-Catch this event in the parent component with `on:captchaReset`.
-Use this event to reset any necessaries values/elements or what have you if you'd like, but isn't necessary  
+/** Returns the capthca's token if it has one. If no response it returns an empty string */
+export function getRecaptchaResponse(): string {
+    return grecaptcha.getResponse();
+}
+``` 
 -->
