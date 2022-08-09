@@ -1,13 +1,14 @@
 <script lang="ts">
     import { ReCaptcha } from "$lib";
-    let name = 'world';
-
+    
     let SITE_KEY: string = "";
+    
     let formData = {
         token: "",
-        name: ""
+        name: 'world'
     }
-
+    let name = 'world';
+    
     const captchaTokenRecieved = (event: { detail: { token: any; }; }) => {
         formData.token = event.detail.token;
     }
@@ -37,8 +38,8 @@
 <form on:submit|preventDefault={onSubmit}>
     <input type="text" bind:value={formData.name}>
     
-    <ReCaptcha SITE_KEY={SITE_KEY}
-        CaptchaStyle={{theme: 'dark', size: 'compact'}}
+    <ReCaptcha { SITE_KEY }
+        captchaStyle={{theme: 'dark'}}
         on:captchaTokenRecieved={captchaTokenRecieved}
         on:captchaReset={captchaReset}
     />

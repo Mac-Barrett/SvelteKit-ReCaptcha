@@ -56,6 +56,7 @@ npm i @mac-barrett/svelte-recaptcha
 1. As shown, make sure to save the captcha token from the captchaTokenRecieved event.
 2. Send the captcha token with the body of your HTTP request for the final validation test.
 3. In your server endpoint, make an API call to google's recaptcha service to verify that the token the server recieved from the client is the same one that google sent to the client's browser. Your endpoint ought to end up looking something like this:
+4. I think sending the host might be optional; however, you might as well send that as well.
 
 ```ts
 const SECRET_KEY = [--SECRET KEY env variable--]
@@ -95,7 +96,7 @@ async function verifyCaptcha(token: string, host: string): Promise<boolean> {
     return data.success;
 }
 ```
-# All Props & Events
+# Component Properties & Events:
 ```svelte
 <ReCaptcha 
     SITE_KEY

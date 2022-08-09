@@ -7,10 +7,10 @@
     export var SITE_KEY: string;
 
     interface CaptchaStyle {
-        theme: 'light'|'dark',
-        size: 'normal'|'compact'
+        theme?: 'light'|'dark',
+        size?: 'normal'|'compact'
     }
-    export var CaptchaStyle: CaptchaStyle = {
+    export var captchaStyle: CaptchaStyle = {
         theme: 'light',
         size: 'normal'
     }
@@ -33,24 +33,18 @@
         dispatch('captchaTokenRecieved', { token });
     };
 
-    /**
-     * Fires when the captcha's data expires and the user needs to be re-validated
-     */
+    /** Fires when the captcha's data expires and the user needs to be re-validated */
     const onDataExpiredHook = () => {
         resetCaptcha();
     }
 
-    /**
-     * Fires when the captcha encounters an error--typically network connectivity.
-     */
+    /** Fires when the captcha encounters an error--typically network connectivity. */
     const onCaptchaError = () => {
         captchaError = 'Recaptcha error. Please reload the page';
         dispatch('captchaReset');
 	};
 
-    /**
-     * Resets the captcha widget, you may choose to use the dispatch here to so that the parent can reset the captcha token.
-     */
+    /** Resets the captcha widget, you may choose to use the dispatch here to so that the parent can reset the captcha token. */
     const resetCaptcha = () => {
         window.grecaptcha.reset();
         dispatch('captchaReset');
@@ -61,6 +55,18 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </svelte:head>
 
+{#if captchaError != ""}
+<p>{captchaError}</p>
+{:else}
+<div class="g-recaptcha" 
+    data-sitekey={SITE_KEY} 
+    data-theme={captchaStyle.theme}
+    data-size={captchaStyle.size}
+    data-callback="onDataRecievedHook"
+    data-expired-callback="onDataExpiredHook">
+</div>
+{/if}
+
 <!-- @component
 A ReCaptcha widget Svelte component.  
 Use the captchaTokenRecieved event to grab the token used for server side validation.
@@ -70,7 +76,7 @@ Use the captchaTokenRecieved event to grab the token used for server side valida
 export var SITE_KEY: string;
 
 // Used to style the widget
-export var CaptchaStyle: {
+export var captchaStyle: {
     theme: 'light'|'dark', 
     size: 'normal'|'compact'
 }
@@ -87,15 +93,3 @@ dispatch('captchaReset');
 Catch this event in the parent component with `on:captchaReset`.
 Use this event to reset any necessaries values/elements or what have you if you'd like, but isn't necessary  
 -->
-
-{#if captchaError != ""}
-<p>{captchaError}</p>
-{:else}
-<div class="g-recaptcha" 
-    data-sitekey={SITE_KEY} 
-    data-theme={CaptchaStyle.theme}
-    data-size={CaptchaStyle.size}
-    data-callback="onDataRecievedHook"
-    data-expired-callback="onDataExpiredHook">
-</div>
-{/if}
