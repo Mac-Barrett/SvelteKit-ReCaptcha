@@ -1,6 +1,6 @@
 {
     "name": "@mac-barrett/svelte-recaptcha",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "A SvelteKit/Svelte Component that handles all of your ReCaptcha needs!",
     "keywords": ["Svelte", "SvelteKit", "ReCaptcha", "ReCaptchaV2"],
     "homepage": "https://github.com/Mac-Barrett/SvelteKit-ReCaptcha.git",
