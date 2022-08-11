@@ -2,14 +2,14 @@
     import { onMount } from "svelte";
 
     /** SITE_KEY From google */
-    export var SITE_KEY: string;
+    export let SITE_KEY: string;
     /** Styles the captcha widget */
-    export var captchaStyle: {theme?: 'light'|'dark', size?:'normal'|'compact'} = {
+    export let captchaStyle: {theme?: 'light'|'dark', size?:'normal'|'compact'} = {
         theme: 'light',
         size: 'normal'
     }
-    /** Returns the status of this captcha Component */
-    export function getRecaptchaResponse(): string {
+    /** Returns the capthca's token if it has one. If no response it returns an empty string */
+    export const getRecaptchaResponse = (): string => {
         return grecaptcha.getResponse();
     }
 
@@ -37,25 +37,3 @@
 </div>
 {/if}
 
-<!-- @component
-A ReCaptcha widget Svelte component.  
-Bind this element to a variable and use it's getRecaptchaResponse method to grab the Captcha token.
-#### Properties:
-```ts
-// The SITE_KEY associated with your domain
-export var SITE_KEY: string;
-
-// Used to style the widget
-export var captchaStyle: {theme?: 'light'|'dark', size?:'normal'|'compact'} = {
-    theme: 'light',
-    size: 'normal'
-}
-```
-#### Functions:
-```ts
-/** Returns the capthca's token if it has one. If no response it returns an empty string */
-export function getRecaptchaResponse(): string {
-    return grecaptcha.getResponse();
-}
-``` 
--->
